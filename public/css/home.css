@@ -1,0 +1,59 @@
+body{
+    background-color: white;
+}
+
+.header{
+    width: 100%;
+    padding: 10px;
+    margin: 0px;
+    background-color: green;
+}
+
+.footer{
+    background-color: #D8D8D8;
+    color: #6E6E6E; 
+    font-size: 0.8em;
+    width: 100%;
+    padding: 5px;
+    text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6{
+    padding: 0px;
+    margin: 0px;
+}
+
+.endpoint{
+    width: 100%;
+    margin: 5px;
+    padding: 15px;
+}
+
+.endpoint .title{
+    font-size: 1.5em;
+    padding: 4px;
+    padding-left: 15px;
+    background-color: #088A29;
+    display: inline-block;
+    margin: 0px;
+    width: 800px;
+}
+
+.endpoint  .method{
+    font-size: 1.5em;
+    background-color: #31B404;
+    width: 75px;
+    padding: 4px;
+    display: inline-block;
+    margin: 0px;
+}
+
+.endpoint .example{
+    margin-bottom: 10px;
+}
+
+.content p{
+    margin: 18px;
+    font-size: 1.1em;
+    width: 875px;
+}
