@@ -1,3 +1,3 @@
-# Contribution Guidelines
+# uuid.turt2live.com
 
-Please submit all issues and pull requests to the [laravel/framework](http://github.com/laravel/framework) repository!
+The repository for [uuid.turt2live.com](http://uuid.turt2live.com)
