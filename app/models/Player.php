@@ -3,21 +3,54 @@ class Player extends Eloquent{
 
     protected $table = 'players';
     
+    public static function random($amount){
+        $count = Player::count();
+        $min = Player::min('id');
+        $max = Player::max('id');
+        
+        if($amount < 1) $amount = 1;
+        if($amount > $count) $amount = $count;
+        
+        $players = array();
+        
+        $ids = array();
+        while(count($ids) < $amount){
+            $rand = null;
+            do{
+                $rand = rand($min, $max);
+            }while(in_array($rand, $ids));
+            
+            $p = Player::find($rand);
+            
+            if($p != null){
+                $ids[count($ids)] = $rand;
+                $players[count($players)] = Player::find($rand);
+            }
+        }
+        
+        return $players;
+    }
+    
     public function asArray(){
         $arr = array();
         
-        $arr['name'] = $this->name;
-        $arr['uuid'] = $this->uuid;
+        $arr['name'] = $this->name == null ? "unknown" : $this->name;
+        $arr['uuid'] = $this->uuid == null ? "unknown" : $this->uuid;
         $arr['offline-uuid'] = $this->offlineUuid();
+        $arr['expires-in'] = $this->expires_on - time();
+        $arr['expires-on'] = $this->expires_on;
         
         return $arr;
+    }
+    
+    public function isExpired(){
+        return $this->expires_on <= time();
     }
     
     public function offlineUuid(){
         $hashed = md5("OfflinePlayer:".$this->name);
         return $this->uuidFromHashedName($hashed, 3);
     }
-    
     
     // Taken from UUID library because the Uuid::uuid3 method is not sufficient.
     protected function uuidFromHashedName($hash, $version)
