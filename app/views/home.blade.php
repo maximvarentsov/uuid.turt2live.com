@@ -8,7 +8,12 @@
     <script src="{{ URL::asset('/js/jquery.json.js') }}"></script>
     <link href="{{  URL::asset('/css/home.css') }}" rel='stylesheet'>
     
-    <script type='text/javascript'>
+    <script type='text/javascript'> 
+        $.fn.digits = function(){ 
+            return this.each(function(){ 
+                $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") ); 
+            })
+        }
         $(document).ready(function(){
             var blocks = $(".do-post");
             blocks.each(function(index){
@@ -17,9 +22,14 @@
                 var data = $.parseJSON(block.attr('data-data'));
                 
                 $.post(url, data, function(resp){       
-                    resp = $.toJSON(resp);
-                    block.html(resp);
+                    //resp = $.toJSON(resp);
+                    block.html(JSON.stringify(resp, undefined, 4));
                 });
+            });
+            
+            $.get("{{ URL::route('info')}}", function(resp){                
+                var totalPlayers = resp["total-players-cached"];
+                $("#totalPlayers").html(totalPlayers).digits();
             });
         });
     </script>
@@ -28,117 +38,106 @@
     <div class="header">
         <h1>Turt2Live's UUID Caching Service</h1>
     </div>
+    <div class="header-under">
+        <span id="totalPlayers">-1</span> total UUIDs cached
+    </div>
     <div class="content">
-        <p>This service is provided free of charge so long as there is no abuse. This service simply acts as a caching service between you and Mojang to ensure that you don't approach a rate limit problem. Anything returned from this service will be as old as 2 hours and is updated on-demand (meaning a name could be 2 hours old and well be re-fetched from Mojang once it has expired and it is being requested). The design is known to be lacking and may be replaced by anyone with the willpower. You can see the source on <a href="http://github.com/turt2live/MinecraftUUID">GitHub</a>.</p>
-        <p>Any occurrence of an error will appear as the following response (where the message varies): <code>{{ file_get_contents(URL::route('testError')) }}</code> <br/>Please contact Travis (<a href="mailto:travis@turt2live.com">travis@turt2live.com</a>) for assistance with errors.</p>
-        <p>UUIDs may either be in 'short' format (no dashes) or 'long' format (with dashes). However the API will always return a 'with dashes' version.</p>
+        <p>This service is a free of charge Minecraft UUID caching service. What this means is that so long as no one abuses it, it will be free to access. This also means that the actual service caches UUID information for a period of time and is therefore a perfect solution to not attacking Mojang and getting hammered with rate limits because of your large server.</p>
+        <p>All information on this service can be as old as 2 hours. Any data older than that becomes stale and when requested by someone it will be re-cached. That means every once and a while a request might take slightly longer because we have to re-cache the value from Mojang. Any information which has been cached will have two keys in the json response, like so: <code>{"expires_on":1407720229, "expires_in":6591}</code>. The "expires on" tag is the time value that the backend is using to determine if something has expired (see the "info" endpoint for information). The "expires in" key represents the number of seconds until the data is going to be stale.</p>
+        <p>Errors can happen, and when they do the following sample response will be returned: <code>{{ file_get_contents(URL::route('testError')) }}</code>. The response should be pretty self-explanatory. For support with an error, please contact <a href="mailto:travis@turt2live.com">Travis (travis@turt2live.com)</a> with the error ID.</p>
+        <p>The entire service's source is available for free on <a href="http://github.com/turt2live/uuid.turt2live.com">GitHub</a>.</p>
+        <p>UUIDs may either be in 'short' format (no dashes) or 'long' format (with dashes). However the API will always return a 'with dashes' version. All sample data on this page was generated using the API.</p>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/uuid/&lt;player name&gt;[/offline]</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('uuid', ['turt2live']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('uuid', ['turt2live']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('uuid', ['turt2live'])) }}
-                </code>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('uuid', ['turt2live']))), JSON_PRETTY_PRINT) }}</pre>
             </div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('uuidOffline', ['turt2live']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('uuidOffline', ['turt2live']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('uuidOffline', ['turt2live'])) }}
-                </code><br/>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('uuidOffline', ['turt2live']))), JSON_PRETTY_PRINT) }}</pre><br/>
                 <i>Note: The uuid will always be 'unknown' for offline requests</i>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/name/&lt;player uuid&gt;</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('name', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('name', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('name', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8'])) }}
-                </code>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('name', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8']))), JSON_PRETTY_PRINT) }}</pre>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/name/list/&lt;player uuid 1&gt;;&lt;player uuid 2&gt;;&lt;...&gt;</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('nameList', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8;7afc5cdf-aebd-43e5-ac7c-9c7e48243c6a;795a6053-16a7-42f2-bdd2-9e8e33ff0333']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('nameList', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8;7afc5cdf-aebd-43e5-ac7c-9c7e48243c6a;795a6053-16a7-42f2-bdd2-9e8e33ff0333']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('nameList', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8;7afc5cdf-aebd-43e5-ac7c-9c7e48243c6a;795a6053-16a7-42f2-bdd2-9e8e33ff0333'])) }}
-                </code>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('nameList', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8;7afc5cdf-aebd-43e5-ac7c-9c7e48243c6a;795a6053-16a7-42f2-bdd2-9e8e33ff0333']))), JSON_PRETTY_PRINT) }}</pre>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/uuid/list/&lt;player name 1&gt;;&lt;player name 2&gt;;&lt;...&gt;</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('uuidList', ['turt2live;drtshock;Shadowwolf97']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('uuidList', ['turt2live;drtshock;Shadowwolf97']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('uuidList', ['turt2live;drtshock;Shadowwolf97'])) }}
-                </code>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('uuidList', ['turt2live;drtshock;Shadowwolf97']))), JSON_PRETTY_PRINT) }}</pre>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/history/&lt;player uuid&gt;</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('history', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('history', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('history', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8'])) }}
-                </code>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('history', ['c465b154-3c29-4dbf-a7e3-e0869504b8d8']))), JSON_PRETTY_PRINT) }}</pre>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/random/[amount]</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('random') }}<br/>
+                <b>Request: </b><code>{{ URL::route('random') }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('random')) }}
-                </code><br/>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('random'))), JSON_PRETTY_PRINT) }}</pre><br/>
                 <i>Warning: Potentially expired results may be included in the result set</i>
             </div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('randomAmount', ['4']) }}<br/>
+                <b>Request: </b><code>{{ URL::route('randomAmount', ['4']) }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('randomAmount', ['4'])) }}
-                </code><br/>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('randomAmount', ['4']))), JSON_PRETTY_PRINT) }}</pre><br/>
                 <i>Warning: Potentially expired results may be included in the result set</i>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/info</div>
             <div class="example">
-                <b>Request: </b> {{ URL::route('info') }}<br/>
+                <b>Request: </b><code>{{ URL::route('info') }}</code><br/>
                 <b>Output: </b>
-                <code>
-                    {{ file_get_contents(URL::route('info')) }}
-                </code>
+                <pre>{{ json_encode(json_decode(file_get_contents(URL::route('info'))), JSON_PRETTY_PRINT) }}</pre>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>POST</div><div class="title">/api/v2/uuid</div>
             <div class="example">
-                <b>Request Data: </b> <code>{"names": ["turt2live", "drtshock", "Shadowwolf97"]}</code><br/>
+                <b>Request Data: </b>
+                <pre>{{ json_encode(json_decode("{\"names\": [\"turt2live\", \"drtshock\", \"Shadowwolf97\"]}"), JSON_PRETTY_PRINT); }}</pre><br/>
                 <b>Output: </b>
-                <code class='do-post' data-url="{{ URL::route('uuidPost') }}" data-data='{"names": ["turt2live", "drtshock", "Shadowwolf97"]}'>
+                <pre class='do-post' data-url="{{ URL::route('uuidPost') }}" data-data='{"names": ["turt2live", "drtshock", "Shadowwolf97"]}'>
                     <!-- Populated by JavaScript -->
                     Loading...
-                </code>
+                </pre>
             </div>
         </div>
         <div class="endpoint">
             <div class='method'>POST</div><div class="title">/api/v2/name</div>
             <div class="example">
-                <b>Request Data: </b> <code>{"uuids": ["c465b154-3c29-4dbf-a7e3-e0869504b8d8","7afc5cdfaebd43e5ac7c9c7e48243c6a","795a605316a742f2bdd29e8e33ff0333"]}</code><br/>
+                <b>Request Data: </b> 
+                <pre>{{ json_encode(json_decode("{\"uuids\": [\"c465b154-3c29-4dbf-a7e3-e0869504b8d8\",\"7afc5cdfaebd43e5ac7c9c7e48243c6a\",\"795a605316a742f2bdd29e8e33ff0333\"]}"), JSON_PRETTY_PRINT) }}</pre><br/>
                 <b>Output: </b>
-                <code class='do-post' data-url="{{ URL::route('namePost') }}" data-data='{"uuids": ["c465b154-3c29-4dbf-a7e3-e0869504b8d8","7afc5cdfaebd43e5ac7c9c7e48243c6a","795a605316a742f2bdd29e8e33ff0333"]}'>
+                <pre class='do-post' data-url="{{ URL::route('namePost') }}" data-data='{"uuids": ["c465b154-3c29-4dbf-a7e3-e0869504b8d8","7afc5cdfaebd43e5ac7c9c7e48243c6a","795a605316a742f2bdd29e8e33ff0333"]}'>
                     <!-- Populated by JavaScript -->
                     Loading...
-                </code>
+                </pre>
             </div>
         </div>
     </div>

@@ -1,19 +1,26 @@
-body{
+body, html, div{
     background-color: white;
+    padding: 0;
+    margin: 0;
 }
 
 .header{
-    width: 100%;
     padding: 10px;
     margin: 0px;
     background-color: green;
+}
+
+.header-under{
+    padding: 10px;
+    margin: 0px;
+    background-color: #209303;
+    font-size: 1.1em;
 }
 
 .footer{
     background-color: #D8D8D8;
     color: #6E6E6E; 
     font-size: 0.8em;
-    width: 100%;
     padding: 5px;
     text-align: center;
 }
@@ -24,7 +31,6 @@ h1, h2, h3, h4, h5, h6{
 }
 
 .endpoint{
-    width: 100%;
     margin: 5px;
     padding: 15px;
 }
