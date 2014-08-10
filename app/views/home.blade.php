@@ -26,10 +26,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>Turt2Live's UUID Service</h1>
+        <h1>Turt2Live's UUID Caching Service</h1>
     </div>
     <div class="content">
-        <p>This service is provided free of charge so long as there is no abuse. The design is known to be lacking and may be replaced by anyone with the willpower. You can see the source on <a href="http://github.com/turt2live/MinecraftUUID">GitHub</a>.</p>
+        <p>This service is provided free of charge so long as there is no abuse. This service simply acts as a caching service between you and Mojang to ensure that you don't approach a rate limit problem. Anything returned from this service will be as old as 2 hours and is updated on-demand (meaning a name could be 2 hours old and well be re-fetched from Mojang once it has expired and it is being requested). The design is known to be lacking and may be replaced by anyone with the willpower. You can see the source on <a href="http://github.com/turt2live/MinecraftUUID">GitHub</a>.</p>
         <p>Any occurrence of an error will appear as the following response (where the message varies): <code>{{ file_get_contents(URL::route('testError')) }}</code> <br/>Please contact Travis (<a href="mailto:travis@turt2live.com">travis@turt2live.com</a>) for assistance with errors.</p>
         <div class="endpoint">
             <div class='method'>GET</div><div class="title">/api/v2/uuid/&lt;player name&gt;</div>
