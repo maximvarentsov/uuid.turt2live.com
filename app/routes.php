@@ -19,6 +19,7 @@ Route::get('/api/v2/name/list/{uuids}', array('as' => 'nameList', 'uses' => 'Hom
 Route::get('/api/v2/history/{player}', array('as' => 'history', 'uses' => 'HomeController@getHistory'));
 Route::get('/api/v2/random', array('as' => 'random', 'uses' => 'HomeController@getRandom'));
 Route::get('/api/v2/random/{amount}', array('as' => 'randomAmount', 'uses' => 'HomeController@getRandom'));
+Route::get('/api/v2/errortest', array('as' => 'testError', 'uses' => 'HomeController@getErrorTest'));
 
 Route::post('/api/v2/uuid', array('as' => 'uuidPost', 'uses' => 'HomeController@postUuid'));
 Route::post('/api/v2/name', array('as' => 'namePost', 'uses' => 'HomeController@postName'));

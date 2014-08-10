@@ -110,6 +110,12 @@ class HomeController extends BaseController {
         return View::make('home');
     }
     
+    public function getErrorTest(){
+        $arr = array("message" => "This is a test error", "error" => true, "errorId" => -1);
+        
+        return Response::json($arr);
+    }
+    
     public function getUuid($name){
         $arr = $this->uuid($name);
         $arr["query"] = $name;
